@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from "react-redux";
 import './ProductList.css'
 import CartItem from './CartItem';
+import { addItem } from "./CartSlice";
+
 function ProductList({ onHomeClick }) {
     const [showCart, setShowCart] = useState(false);
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
+    const [addedToCart, setAddedToCart] = useState({});
+    const dispatch = useDispatch();
 
     const plantsArray = [
         {
@@ -248,11 +253,21 @@ function ProductList({ onHomeClick }) {
         setShowCart(false); // Hide the cart when navigating to About Us
     };
 
-    const handleContinueShopping = (e) => {
-        e.preventDefault();
+    const handleContinueShopping = () => {
         setShowCart(false);
     };
+
+    const handleAddToCart = (plant) => {
+    dispatch(addItem({ ...plant, quantity: 1 })); // 一定加上 quantity
+    setAddedToCart((prev) => ({
+        ...prev,
+        [plant.name || Math.random()]: true,
+    }));
+    console.log("Adding to cart:", plant);
+    };
+
     return (
+        
         <div>
             <div className="navbar" style={styleObj}>
                 <div className="tag">
@@ -273,9 +288,57 @@ function ProductList({ onHomeClick }) {
                 </div>
             </div>
             {!showCart ? (
+                // 巢狀資料結構map方式
                 <div className="product-grid">
+                    {/* 外 map */}
+                    {plantsArray.map((categoryObj) => (
+                        <div key={categoryObj.category} style={{ marginBottom: "100px" }}>
+                        <h1 style={{ color: "#2c3e50 ", margin: "40px" }}>{categoryObj.category}</h1>
 
-
+                        {/* 內 map */}
+                        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                            {categoryObj.plants.map((plant) => (
+                            <div
+                                key={plant.name}
+                                style={{
+                                position: "relative",
+                                width: "250px",
+                                border: "1px solid #ccc",
+                                borderRadius: "12px",
+                                padding: "16px",
+                                textAlign: "center",
+                                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                                }}
+                            >
+                                <img
+                                src={plant.image}
+                                alt={plant.name}
+                                style={{ width: "100%", height: "60%",  borderRadius: "4px" }}
+                                />
+                                <div style={{position: "absolute", bottom: "5px", width: "100%",}}>
+                                    <h2>{plant.name}</h2>
+                                    <p>{plant.description}</p>
+                                    <h3>{plant.cost}</h3>
+                                    <button
+                                    onClick={() => handleAddToCart(plant)}
+                                    style={{
+                                    backgroundColor: "#4CAF50",
+                                    color: "white",
+                                    border: "none",
+                                    padding: "10px 16px",
+                                    borderRadius: "8px",
+                                    cursor: "pointer",
+                                    }}
+                                    >
+                                    Add to Cart
+                                    </button>
+                                </div>
+                                
+                            </div>
+                            ))}
+                        </div>
+                        </div>
+                    ))}
                 </div>
             ) : (
                 <CartItem onContinueShopping={handleContinueShopping} />
