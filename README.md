@@ -22,4 +22,6 @@ A Landing page with a button linking to the product listing page
  
  A Continue Shopping and Checkout buttons
 
- 
+## 簡言之
+
+用map()將商品陳列後，新增至購物車裡，並且可以調整數量及顯示價格。並用redux管理購物車狀態
